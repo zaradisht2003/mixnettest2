@@ -29,7 +29,7 @@ __pycache__
 
 # Allow data-generation-configs
 train/tb_logs
-train/trained_models
+!train/trained_models
 
 # don't ignore some parameter files.
 !train/configs
