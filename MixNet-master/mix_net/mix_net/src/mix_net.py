@@ -16,7 +16,7 @@ class MixNet(nn.Module):
         super(MixNet, self).__init__()
 
         self._params = params
-
+        
         # Input embedding layer:
         self._ip_emb = torch.nn.Linear(2, params["encoder"]["in_size"])
 

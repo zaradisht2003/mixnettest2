@@ -36,29 +36,18 @@ class newMixNet2(nn.Module):
 
         # Boundary encoders:
         
-        left_encoder_layer = nn.TransformerEncoderLayer(
-            d_model=params["encoder"]["hidden_size"],
-            nhead=params["encoder"]["nhead"],
-            dim_feedforward=params["encoder"]["dim_feedforward"],
-            dropout=params["encoder"]["dropout"],
-            activation='relu'
-        )
-        self._enc_left_bound = nn.TransformerEncoder(
-            left_encoder_layer,
-            num_layers=params["encoder"]["num_layers"]
+        self._enc_left_bound = torch.nn.LSTM(
+            params["encoder"]["in_size"],
+            params["encoder"]["hidden_size"],
+            1,
+            batch_first=True,
         )
 
-        # Right Boundary encoder Transformer:
-        right_encoder_layer = nn.TransformerEncoderLayer(
-            d_model=params["encoder"]["hidden_size"],
-            nhead=params["encoder"]["nhead"],
-            dim_feedforward=params["encoder"]["dim_feedforward"],
-            dropout=params["encoder"]["dropout"],
-            activation='relu'
-        )
-        self._enc_right_bound = nn.TransformerEncoder(
-            right_encoder_layer,
-            num_layers=params["encoder"]["num_layers"]
+        self._enc_right_bound = torch.nn.LSTM(
+            params["encoder"]["in_size"],
+            params["encoder"]["hidden_size"],
+            1,
+            batch_first=True,
         )
         # Linear stack that outputs the path mixture ratios:
         self._mix_out_layers = self._get_linear_stack(
@@ -141,22 +130,23 @@ class newMixNet2(nn.Module):
 
     # Transpose for transformers:
         hist_emb = hist_emb.transpose(0, 1)  # [seq_len, batch_size, feature_size]
-        left_emb = left_emb.transpose(0, 1)
-        right_emb = right_emb.transpose(0, 1)
+        
 
     # History encoding using Transformer:
         hist_enc = self._enc_hist(hist_emb)
         hist_h = hist_enc.mean(dim=0, keepdim=True)  # [1, batch_size, hidden_size]
 
     # Left Boundary encoding using Transformer:
-        left_enc = self._enc_left_bound(left_emb)
-        left_h = left_enc.mean(dim=0, keepdim=True)
+        
 
     # Right Boundary encoding using Transformer:
-        right_enc = self._enc_right_bound(right_emb)
-        right_h = right_enc.mean(dim=0, keepdim=True)
+        
 
     # Concatenate and squeeze encodings:
+        _, (left_h, _) = self._enc_left_bound(self._ip_emb(left_bound.to(self.device)))
+        _, (right_h, _) = self._enc_right_bound(
+            self._ip_emb(right_bound.to(self.device))
+        )
         enc = torch.squeeze(torch.cat((hist_h, left_h, right_h), 2), dim=0)
 
         # path mixture through softmax:
@@ -199,8 +189,8 @@ class newMixNet2(nn.Module):
             layer_list.append(
                 (layer_name, nn.Linear(layer_sizes[i], layer_sizes[i + 1]))
             )
-            if i==len(layer_sizes)-2:
-                layer_list.append((act_name, nn.ReLU()))
+    
+            layer_list.append((act_name, nn.ReLU()))
 
         # removing the last ReLU layer:
         layer_list = layer_list[:-1]
