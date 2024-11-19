@@ -10,7 +10,7 @@
     {
         "frequency": 10.0,
         "map_file_path": "mix_net/mix_net/data/map/traj_ltpl_cl_IMS_GPS.csv",
-        "path": "Full_test",
+        "path": "data/mix_net_sample.pkl",
         "use_every_nth": 1.0,
         "from_saved_dataloader": false,
         "dataloader_path": "",
