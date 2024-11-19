@@ -179,7 +179,7 @@ class newMixNet2(nn.Module):
         return mix_out, vel_out, acc_out
 
     def load_model_weights(self, weights_path):
-        self.load_state_dict(torch.load(weights_path, map_location=self.device),strict=False)
+        self.load_state_dict(torch.load(weights_path, map_location=self.device))
         print("Successfully loaded model weights from {}".format(weights_path))
 
     def _get_linear_stack(
