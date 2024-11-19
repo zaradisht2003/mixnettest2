@@ -1,0 +1,32 @@
+{
+    "use_cuda": true,
+    "encoder": {
+        "in_size": 64,
+        "hidden_size": 64,
+        "nhead":4,
+        "dim_feedforward":600,
+        "dropout":0.2,
+        "num_layers":10
+    },
+    "mixer_linear_stack": {
+        "hidden_sizes": [
+            256,
+            256,
+            32
+        ],
+        "out_size": 4
+    },
+    "init_vel_linear_stack": {
+        "hidden_sizes": [
+            32
+        ],
+        "out_size": 1,
+        "max_vel": 90.0
+    },
+    "acc_decoder": {
+        "in_size": 16,
+        "hidden_size": 32,
+        "num_acc_sections": 5,
+        "max_acc": 30
+    }
+}
